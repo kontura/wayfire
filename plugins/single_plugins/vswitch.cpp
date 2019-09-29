@@ -29,12 +29,22 @@ class vswitch : public wf::plugin_interface_t
     private:
         activator_callback callback_left, callback_right, callback_up, callback_down;
         activator_callback callback_win_left, callback_win_right, callback_win_up, callback_win_down;
+        activator_callback callback_add_to_group_1, callback_toggle_group_1;
+        activator_callback callback_add_to_group_2, callback_toggle_group_2;
+        activator_callback callback_add_to_group_3, callback_toggle_group_3;
+        activator_callback callback_add_to_group_4, callback_toggle_group_4;
+        activator_callback callback_add_to_group_5, callback_toggle_group_5;
+        activator_callback callback_add_to_group_6, callback_toggle_group_6;
+        activator_callback callback_add_to_group_7, callback_toggle_group_7;
+        activator_callback callback_add_to_group_8, callback_toggle_group_8;
+        activator_callback callback_add_to_group_9, callback_toggle_group_9;
 
         gesture_callback gesture_cb;
 
         wf_duration duration;
         wf_transition dx, dy;
         wayfire_view grabbed_view = nullptr;
+        std::set<wayfire_view> one, two, three, four, five, six, seven, eight, nine;
 
         wf_option animation_duration;
 
@@ -64,6 +74,26 @@ class vswitch : public wf::plugin_interface_t
         callback_win_up    = [=] (wf_activator_source, uint32_t) { add_direction( 0, -1, get_top_view()); };
         callback_win_down  = [=] (wf_activator_source, uint32_t) { add_direction( 0,  1, get_top_view()); };
 
+        callback_add_to_group_1  = [=] (wf_activator_source, uint32_t) { add_to_group(1, 0, &one); };
+        callback_add_to_group_2  = [=] (wf_activator_source, uint32_t) { add_to_group(2, 0, &two); };
+        callback_add_to_group_3  = [=] (wf_activator_source, uint32_t) { add_to_group(3, 0, &three); };
+        callback_add_to_group_4  = [=] (wf_activator_source, uint32_t) { add_to_group(4, 0, &four); };
+        callback_add_to_group_5  = [=] (wf_activator_source, uint32_t) { add_to_group(5, 0, &five); };
+        callback_add_to_group_6  = [=] (wf_activator_source, uint32_t) { add_to_group(6, 0, &six); };
+        callback_add_to_group_7  = [=] (wf_activator_source, uint32_t) { add_to_group(7, 0, &seven); };
+        callback_add_to_group_8  = [=] (wf_activator_source, uint32_t) { add_to_group(8, 0, &eight); };
+        callback_add_to_group_9  = [=] (wf_activator_source, uint32_t) { add_to_group(9, 0, &nine); };
+
+        callback_toggle_group_1 = [=] (wf_activator_source, uint32_t) { toggle_group(1, 0, &one); };
+        callback_toggle_group_2 = [=] (wf_activator_source, uint32_t) { toggle_group(2, 0, &two); };
+        callback_toggle_group_3 = [=] (wf_activator_source, uint32_t) { toggle_group(3, 0, &three); };
+        callback_toggle_group_4 = [=] (wf_activator_source, uint32_t) { toggle_group(4, 0, &four); };
+        callback_toggle_group_5 = [=] (wf_activator_source, uint32_t) { toggle_group(5, 0, &five); };
+        callback_toggle_group_6 = [=] (wf_activator_source, uint32_t) { toggle_group(6, 0, &six); };
+        callback_toggle_group_7 = [=] (wf_activator_source, uint32_t) { toggle_group(7, 0, &seven); };
+        callback_toggle_group_8 = [=] (wf_activator_source, uint32_t) { toggle_group(8, 0, &eight); };
+        callback_toggle_group_9 = [=] (wf_activator_source, uint32_t) { toggle_group(9, 0, &nine); };
+
         auto section   = config->get_section("vswitch");
 
         auto binding_left  = section->get_option("binding_left",  "<super> KEY_LEFT  | swipe right 4");
@@ -76,6 +106,25 @@ class vswitch : public wf::plugin_interface_t
         auto binding_win_up    = section->get_option("binding_win_up",    "<super> <shift> KEY_UP");
         auto binding_win_down  = section->get_option("binding_win_down",  "<super> <shift> KEY_DOWN");
 
+        auto binding_add_to_group_1  = section->get_option("binding_add_to_group_1", "<alt> <shift> KEY_1");
+        auto binding_toggle_group_1  = section->get_option("binding_toggle_group_1",         "<alt> KEY_1");
+        auto binding_add_to_group_2  = section->get_option("binding_add_to_group_2", "<alt> <shift> KEY_2");
+        auto binding_toggle_group_2  = section->get_option("binding_toggle_group_2",         "<alt> KEY_2");
+        auto binding_add_to_group_3  = section->get_option("binding_add_to_group_3", "<alt> <shift> KEY_3");
+        auto binding_toggle_group_3  = section->get_option("binding_toggle_group_3",         "<alt> KEY_3");
+        auto binding_add_to_group_4  = section->get_option("binding_add_to_group_4", "<alt> <shift> KEY_4");
+        auto binding_toggle_group_4  = section->get_option("binding_toggle_group_4",         "<alt> KEY_4");
+        auto binding_add_to_group_5  = section->get_option("binding_add_to_group_5", "<alt> <shift> KEY_5");
+        auto binding_toggle_group_5  = section->get_option("binding_toggle_group_5",         "<alt> KEY_5");
+        auto binding_add_to_group_6  = section->get_option("binding_add_to_group_6", "<alt> <shift> KEY_6");
+        auto binding_toggle_group_6  = section->get_option("binding_toggle_group_6",         "<alt> KEY_6");
+        auto binding_add_to_group_7  = section->get_option("binding_add_to_group_7", "<alt> <shift> KEY_7");
+        auto binding_toggle_group_7  = section->get_option("binding_toggle_group_7",         "<alt> KEY_7");
+        auto binding_add_to_group_8  = section->get_option("binding_add_to_group_8", "<alt> <shift> KEY_8");
+        auto binding_toggle_group_8  = section->get_option("binding_toggle_group_8",         "<alt> KEY_8");
+        auto binding_add_to_group_9  = section->get_option("binding_add_to_group_9", "<alt> <shift> KEY_9");
+        auto binding_toggle_group_9  = section->get_option("binding_toggle_group_9",         "<alt> KEY_9");
+
         output->add_activator(binding_left,  &callback_left);
         output->add_activator(binding_right, &callback_right);
         output->add_activator(binding_up,    &callback_up);
@@ -86,16 +135,73 @@ class vswitch : public wf::plugin_interface_t
         output->add_activator(binding_win_up,    &callback_win_up);
         output->add_activator(binding_win_down,  &callback_win_down);
 
+        output->add_activator(binding_add_to_group_1,  &callback_add_to_group_1);
+        output->add_activator(binding_toggle_group_1,  &callback_toggle_group_1);
+        output->add_activator(binding_add_to_group_2,  &callback_add_to_group_2);
+        output->add_activator(binding_toggle_group_2,  &callback_toggle_group_2);
+        output->add_activator(binding_add_to_group_3,  &callback_add_to_group_3);
+        output->add_activator(binding_toggle_group_3,  &callback_toggle_group_3);
+        output->add_activator(binding_add_to_group_4,  &callback_add_to_group_4);
+        output->add_activator(binding_toggle_group_4,  &callback_toggle_group_4);
+        output->add_activator(binding_add_to_group_5,  &callback_add_to_group_5);
+        output->add_activator(binding_toggle_group_5,  &callback_toggle_group_5);
+        output->add_activator(binding_add_to_group_6,  &callback_add_to_group_6);
+        output->add_activator(binding_toggle_group_6,  &callback_toggle_group_6);
+        output->add_activator(binding_add_to_group_7,  &callback_add_to_group_7);
+        output->add_activator(binding_toggle_group_7,  &callback_toggle_group_7);
+        output->add_activator(binding_add_to_group_8,  &callback_add_to_group_8);
+        output->add_activator(binding_toggle_group_8,  &callback_toggle_group_8);
+        output->add_activator(binding_add_to_group_9,  &callback_add_to_group_9);
+        output->add_activator(binding_toggle_group_9,  &callback_toggle_group_9);
+
         animation_duration = section->get_option("duration", "180");
         duration = wf_duration(animation_duration);
 
         output->connect_signal("set-workspace-request", &on_set_workspace_request);
+        output->connect_signal("detach-view", &on_destroy_view);
+        output->connect_signal("view-disappeared", &on_destroy_view);
     }
 
     inline bool is_active()
     {
         return output->is_plugin_active(grab_interface->name);
     }
+
+    void add_to_group(int x, int y, std::set<wayfire_view> *group)
+    {
+        group->insert(get_top_view());
+        wf_point ws = output->workspace->get_current_workspace();
+        ws.x = x;
+        ws.y = y;
+        output->workspace->move_to_workspace(get_top_view(), ws);
+        output->focus_view(get_top_view());
+    }
+
+    void toggle_group(int x, int y, std::set<wayfire_view> *group)
+    {
+        wf_point cws = output->workspace->get_current_workspace();
+        std::vector<wayfire_view> current_views = output->workspace->get_views_on_workspace(cws, 4, true);
+        std::set<wayfire_view> s(current_views.begin(), current_views.end());
+        bool answer = std::includes(s.begin(), s.end(), group->begin(), group->end());
+        //log_error("\ncurr size: %lu X one size: %lu\n", current_views.size(), one.size());
+
+        if (answer){
+            cws.x = x;
+            cws.y = y;
+        }
+        
+        for(auto w : *group) {
+            output->workspace->move_to_workspace(w, cws);
+        }    
+        if (answer){
+            output->focus_view(get_top_view());
+        }else{
+            output->focus_view(*(group->begin()));
+            output->workspace->bring_to_front(*(group->begin()));
+        }
+
+    };
+
 
     void add_direction(int x, int y, wayfire_view view = nullptr)
     {
@@ -135,12 +241,19 @@ class vswitch : public wf::plugin_interface_t
             ev->new_viewport.y - ev->old_viewport.y);
     };
 
+    wf::signal_callback_t on_destroy_view = [=] (wf::signal_data_t *data)
+    {
+        wayfire_view w = get_signaled_view(data);
+        one.erase(w);
+    };
+
     std::vector<wayfire_view> get_ws_views()
     {
         std::vector<wayfire_view> views;
+        return views;
         for (auto& view : output->workspace->get_views_in_layer(wf::MIDDLE_LAYERS))
         {
-            if (view != grabbed_view)
+            if (view == grabbed_view)
                 views.push_back(view);
         }
 
@@ -175,19 +288,6 @@ class vswitch : public wf::plugin_interface_t
     {
         if (!duration.running())
             return stop_switch();
-
-        auto screen_size = output->get_screen_size();
-        for (auto view : get_ws_views())
-        {
-            ensure_transformer(view);
-            auto tr = dynamic_cast<vswitch_view_transformer*> (
-                view->get_transformer(vswitch_view_transformer::name).get());
-
-            view->damage();
-            tr->translation_x = -duration.progress(dx) * screen_size.width;
-            tr->translation_y = -duration.progress(dy) * screen_size.height;
-            view->damage();
-        }
     };
 
     void slide_done()
@@ -249,6 +349,8 @@ class vswitch : public wf::plugin_interface_t
         output->rem_binding(&gesture_cb);
         output->disconnect_signal("set-workspace-request",
             &on_set_workspace_request);
+        output->disconnect_signal("view-disappeared", &on_destroy_view);
+        output->disconnect_signal("detach-view", &on_destroy_view);
     }
 };
 
