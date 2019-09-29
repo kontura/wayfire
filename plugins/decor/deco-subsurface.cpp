@@ -24,8 +24,8 @@ extern "C"
 #undef static
 }
 
-const int titlebar_thickness = 30;
-const int resize_edge_threshold = 5;
+const int titlebar_thickness = 2;
+const int resize_edge_threshold = 2;
 const int normal_thickness = resize_edge_threshold;
 
 GLuint get_text_texture(int width, int height,
@@ -85,8 +85,8 @@ class simple_decoration_surface : public wf::surface_interface_t,
     int width = 100, height = 100;
 
     bool active = true; // when views are mapped, they are usually activated
-    float border_color[4] = {0.15f, 0.15f, 0.15f, 0.8f};
-    float border_color_inactive[4] = {0.25f, 0.25f, 0.25f, 0.95f};
+    float border_color[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float border_color_inactive[4] = {0.05f, 0.05f, 0.05f, 0.00f};
 
     GLuint tex = -1;
 
