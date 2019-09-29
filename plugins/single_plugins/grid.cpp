@@ -19,6 +19,8 @@ extern "C"
 #include <wlr/util/edges.h>
 }
 
+#define COUNT 21
+
 const std::string grid_view_id = "grid-view";
 
 class wayfire_grid_view_cdata : public wf::custom_data_t
@@ -220,7 +222,7 @@ static uint32_t get_slot_from_tiled_edges(uint32_t edges)
 
 class wayfire_grid : public wf::plugin_interface_t
 {
-    std::vector<std::string> slots = {"unused", "bl", "b", "br", "l", "c", "r", "tl", "t", "tr"};
+    std::vector<std::string> slots = {"unused", "bl", "b", "br", "l", "c", "r", "tl", "t", "tr", "ml", "mr", "mu", "md", "sl", "sr", "su", "sd", "m1", "m2", "m3"};
     std::vector<std::string> default_keys = {
         "none",
         "<alt> <ctrl> KEY_KP1",
@@ -232,11 +234,28 @@ class wayfire_grid : public wf::plugin_interface_t
         "<alt> <ctrl> KEY_KP7",
         "<alt> <ctrl> KEY_KP8",
         "<alt> <ctrl> KEY_KP9",
+        "<alt> KEY_H",
+        "<alt> KEY_L",
+        "<alt> KEY_J",
+        "<alt> KEY_K",
+        "<alt> <shift> KEY_H",
+        "<alt> <shift> KEY_L",
+        "<alt> <shift> KEY_J",
+        "<alt> <shift> KEY_K",
+        "<alt> KEY_1",
+        "<alt> KEY_2",
+        "<alt> KEY_3",
     };
-    activator_callback bindings[10];
-    wf_option keys[10];
+    activator_callback bindings[COUNT];
+    wf_option keys[COUNT];
 
     wf_option animation_duration, animation_type;
+
+    wf_geometry grabbed_geometry;
+    wf_geometry last_fullscreened;
+    wf_geometry group1 =  {0, 0, 0, 0}; //should be vector
+    wf_geometry group2 =  {0, 0, 0, 0}; //should be vector
+    wf_geometry group3 =  {0, 0, 0, 0}; //should be vector
 
     wf_option restore_opt;
     std::string restore_opt_str;
@@ -272,7 +291,7 @@ class wayfire_grid : public wf::plugin_interface_t
         animation_duration = section->get_option("duration", "300");
         animation_type = section->get_option("type", "simple");
 
-        for (int i = 1; i < 10; i++)
+        for (int i = 1; i < COUNT; i++)
         {
             keys[i] = section->get_option("slot_" + slots[i], default_keys[i]);
 
@@ -351,6 +370,65 @@ class wayfire_grid : public wf::plugin_interface_t
         int w2 = area.width / 2;
         int h2 = area.height / 2;
 
+        auto view = output->get_active_view();
+        grabbed_geometry = view->get_wm_geometry();
+
+        if (n == 18){
+            if (group1.x > area.width){
+                group1.x -= area.width;
+                return group1;
+            }
+            grabbed_geometry.x += area.width;
+            group1 = grabbed_geometry;
+            return grabbed_geometry;
+        }
+        if (n == 19){
+            if (group2.x > area.width){
+                group2.x -= area.width;
+                return group2;
+            }
+            grabbed_geometry.x += area.width;
+            group2 = grabbed_geometry;
+            return grabbed_geometry;
+        }
+        if (n == 20){
+            if (group3.x > area.width){
+                group3.x -= area.width;
+                return group3;
+            }
+            grabbed_geometry.x += area.width;
+            group3 = grabbed_geometry;
+            return grabbed_geometry;
+        }
+
+        if (area.x == grabbed_geometry.x &&
+            area.y == grabbed_geometry.y &&
+            area.height == grabbed_geometry.height &&
+            area.width == grabbed_geometry.width)
+        {
+            return last_fullscreened;
+        }
+
+        if (n > 9){
+            if (n == 10)
+                grabbed_geometry.x -= 80;
+            if (n == 11)
+                grabbed_geometry.x += 80;
+            if (n == 12)
+                grabbed_geometry.y += 80;
+            if (n == 13)
+                grabbed_geometry.y -= 80;
+            if (n == 14)
+                grabbed_geometry.width -= 80;
+            if (n == 15)
+                grabbed_geometry.width += 80;
+            if (n == 16)
+                grabbed_geometry.height += 80;
+            if (n == 17)
+                grabbed_geometry.height -= 80;
+            return grabbed_geometry;
+        }
+
         if (n % 3 == 1)
             area.width = w2;
         if (n % 3 == 0)
@@ -360,6 +438,8 @@ class wayfire_grid : public wf::plugin_interface_t
             area.height = h2;
         else if (n <= 3)
             area.height = h2, area.y += h2;
+
+        last_fullscreened = grabbed_geometry;
 
         return area;
     }
@@ -454,7 +534,7 @@ class wayfire_grid : public wf::plugin_interface_t
 
     void fini()
     {
-        for (int i = 1; i < 10; i++)
+        for (int i = 1; i < COUNT; i++)
             output->rem_binding(&bindings[i]);
 
         output->rem_binding(&restore);
