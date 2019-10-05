@@ -9,6 +9,7 @@
 extern "C"
 {
     struct wlr_output;
+    #include <wlr/types/wlr_output.h>
 }
 
 namespace wf
@@ -169,6 +170,9 @@ class output_t : public wf::object_base_t
     wf_binding *add_button(wf_option button, button_callback *);
     wf_binding *add_gesture(wf_option gesture, gesture_callback *);
     wf_binding *add_activator(wf_option activator, activator_callback *);
+
+    //I should move it in some render loop with wlr_output_cursor_move
+    struct wlr_output_cursor *cursor;
 
     /**
      * Remove the given binding, regardless of its type.
