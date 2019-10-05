@@ -35,6 +35,10 @@ wf::output_impl_t::output_impl_t(wlr_output *handle)
         output_t::refocus(get_signaled_view(data));
     };
 
+    this->cursor = wlr_output_cursor_create(handle);
+    uint8_t pix = 0;
+    wlr_output_cursor_set_image(this->cursor, &pix, 1, 1, 1, 1, 1);
+
     connect_signal("view-disappeared", &view_disappeared_cb);
     connect_signal("detach-view", &view_disappeared_cb);
 }
