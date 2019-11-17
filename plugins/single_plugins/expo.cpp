@@ -34,6 +34,20 @@ class wayfire_expo : public wf::plugin_interface_t
         return false;
     };
 
+    activator_callback keyboard_select_1_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(0, 0, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_2_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(1, 0, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_3_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(2, 0, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_4_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(0, 1, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_5_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(1, 1, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_6_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(2, 1, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_7_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(0, 2, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_8_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(1, 2, state.active, state.zoom_in, zoom_animation.running()); };
+    activator_callback keyboard_select_9_cb = [=] (wf_activator_source, uint32_t) { return keyboard_select_cb(2, 2, state.active, state.zoom_in, zoom_animation.running()); };
+
+    wf_option select_1, select_2, select_3, select_4, select_5, select_6, select_7, select_8, select_9;
+
+
+
     wf_option action_button;
     wf_option background_color, zoom_animation_duration;
     wf_option delimiter_offset;
@@ -63,8 +77,16 @@ class wayfire_expo : public wf::plugin_interface_t
         grab_interface->capabilities = wf::CAPABILITY_MANAGE_COMPOSITOR;
 
         auto section = config->get_section("expo");
-        auto toggle_binding = section->get_option("toggle",
-            "<super> KEY_E | pinch in 3");
+        auto toggle_binding = section->get_option("toggle", "<super> KEY_E | pinch in 3");
+        select_1 = section->get_option("select_1", "KEY_1");
+        select_2 = section->get_option("select_2", "KEY_2");
+        select_3 = section->get_option("select_3", "KEY_3");
+        select_4 = section->get_option("select_4", "KEY_4");
+        select_5 = section->get_option("select_5", "KEY_5");
+        select_6 = section->get_option("select_6", "KEY_6");
+        select_7 = section->get_option("select_7", "KEY_7");
+        select_8 = section->get_option("select_8", "KEY_8");
+        select_9 = section->get_option("select_9", "KEY_9");
 
         auto wsize = output->workspace->get_workspace_grid_size();
         streams.resize(wsize.width);
@@ -127,6 +149,21 @@ class wayfire_expo : public wf::plugin_interface_t
         output->connect_signal("view-disappeared", &view_removed);
     }
 
+    bool keyboard_select_cb(int x, int y, bool active, bool zoom_in, bool running)
+    {
+        if (!active) {
+            return true;
+        } else {
+            if (!running || zoom_in){
+                target_vx = x;
+                target_vy = y;
+                deactivate();
+                return false;
+            }
+        }
+        return false;
+    };
+
     bool activate()
     {
         if (!output->activate_plugin(grab_interface))
@@ -146,6 +183,15 @@ class wayfire_expo : public wf::plugin_interface_t
         output->render->set_renderer(renderer);
         output->render->set_redraw_always();
 
+        output->add_activator(select_1, &keyboard_select_1_cb);
+        output->add_activator(select_2, &keyboard_select_2_cb);
+        output->add_activator(select_3, &keyboard_select_3_cb);
+        output->add_activator(select_4, &keyboard_select_4_cb);
+        output->add_activator(select_5, &keyboard_select_5_cb);
+        output->add_activator(select_6, &keyboard_select_6_cb);
+        output->add_activator(select_7, &keyboard_select_7_cb);
+        output->add_activator(select_8, &keyboard_select_8_cb);
+        output->add_activator(select_9, &keyboard_select_9_cb);
         return true;
     }
 
@@ -158,6 +204,15 @@ class wayfire_expo : public wf::plugin_interface_t
 
         calculate_zoom(false);
         update_zoom();
+        output->rem_binding(&keyboard_select_1_cb);
+        output->rem_binding(&keyboard_select_2_cb);
+        output->rem_binding(&keyboard_select_3_cb);
+        output->rem_binding(&keyboard_select_4_cb);
+        output->rem_binding(&keyboard_select_5_cb);
+        output->rem_binding(&keyboard_select_6_cb);
+        output->rem_binding(&keyboard_select_7_cb);
+        output->rem_binding(&keyboard_select_8_cb);
+        output->rem_binding(&keyboard_select_9_cb);
     }
 
     wf_geometry get_grid_geometry()
