@@ -327,6 +327,7 @@ class wayfire_grid : public wf::plugin_interface_t
             return;
 
         view->get_data_safe<wf_grid_slot_data>()->slot = slot;
+
         ensure_grid_view(view)->adjust_target_geometry(
             get_slot_dimensions(slot) + delta,
             get_tiled_edges_for_slot(slot));
@@ -360,7 +361,7 @@ class wayfire_grid : public wf::plugin_interface_t
      * */
     wf_geometry get_slot_dimensions(int n)
     {
-        auto area = output->workspace->get_workarea();
+        auto area = output->get_relative_geometry();
         int w2 = area.width / 2;
         int h2 = area.height / 2;
 
