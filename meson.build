@@ -29,7 +29,8 @@ libinput       = dependency('libinput', version: '>=1.7.0')
 pixman         = dependency('pixman-1')
 threads        = dependency('threads')
 xkbcommon      = dependency('xkbcommon')
-wlroots        = dependency('wlroots', version: ['>=0.8.0', '<0.9.0'], fallback: ['wlroots', 'wlroots'])
+#wlroots        = dependency('wlroots', version: ['>=0.8.0', '<0.9.0'], fallback: ['wlroots', 'wlroots'])
+wlroots        = subproject('wlroots').get_variable('wlroots')
 wfconfig       = dependency('wf-config', version: '>=0.3', fallback: ['wf-config', 'wfconfig'])
 
 needs_libinotify = ['freebsd', 'dragonfly'].contains(host_machine.system())
@@ -53,8 +54,8 @@ add_project_arguments(['-DWLR_USE_UNSTABLE'], language: ['cpp', 'c'])
 add_project_link_arguments(['-rdynamic', '-Wl,-E'], language: 'cpp')
 
 ccp = meson.get_compiler('cpp')
-wlroots_has_xwayland = ccp.get_define('WLR_HAS_XWAYLAND', prefix: '#include <wlr/config.h>', dependencies: wlroots) == '1'
-wlroots_has_x11_backend = ccp.get_define('WLR_HAS_X11_BACKEND', prefix: '#include <wlr/config.h>', dependencies: wlroots) == '1'
+wlroots_has_xwayland = true
+wlroots_has_x11_backend = true
 
 if get_option('buildtype') == 'debug' or get_option('enable_debug_output')
   conf_data.set('WAYFIRE_DEBUG_ENABLED', true)
