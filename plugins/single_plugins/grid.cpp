@@ -18,6 +18,9 @@ extern "C"
 #include <wlr/util/edges.h>
 }
 
+//#define COUNT 18
+#define COUNT 10
+
 const std::string grid_view_id = "grid-view";
 
 class wayfire_grid_view_cdata : public wf::custom_data_t
@@ -236,11 +239,17 @@ static uint32_t get_slot_from_tiled_edges(uint32_t edges)
 
 class wayfire_grid : public wf::plugin_interface_t
 {
-    std::vector<std::string> slots =
-    {"unused", "bl", "b", "br", "l", "c", "r", "tl", "t", "tr"};
-    wf::activator_callback bindings[10];
-    wf::option_wrapper_t<wf::activatorbinding_t> keys[10];
+    std::vector<std::string> slots = {"unused", "bl", "b", "br", "l", "c", "r", "tl", "t", "tr"};
+    wf::activator_callback bindings[28];
+    wf::option_wrapper_t<wf::activatorbinding_t> keys[COUNT];
+
+    std::vector<std::string> slots2 = {"ml", "mr", "mu", "md", "sl", "sr", "su", "sd"};
+
+    wf::geometry_t grabbed_geometry;
+
     wf::option_wrapper_t<wf::activatorbinding_t> restore_opt{"grid/restore"};
+    std::string restore_opt_str;
+    const std::string restore_opt_default = "toggle";
 
     wf::activator_callback restore = [=] (wf::activator_source_t, uint32_t)
     {
@@ -271,7 +280,7 @@ class wayfire_grid : public wf::plugin_interface_t
         grab_interface->name = "grid";
         grab_interface->capabilities = wf::CAPABILITY_MANAGE_DESKTOP;
 
-        for (int i = 1; i < 10; i++)
+        for (int i = 1; i < COUNT; i++)
         {
             keys[i].load_option("grid/slot_" + slots[i]);
             bindings[i] = [=] (wf::activator_source_t, uint32_t)
@@ -293,6 +302,24 @@ class wayfire_grid : public wf::plugin_interface_t
         output->add_activator(restore_opt, &restore);
 
         output->connect_signal("workarea-changed", &on_workarea_changed);
+        for (int i = 10; i < 18; i++)
+        {
+            wf::option_wrapper_t<std::string> key{"grid/slot_" + slots2[i-10]};
+            auto value = wf::option_type::from_string<wf::activatorbinding_t> (std::string(key));
+            bindings[i] = [=] (wf::activator_source_t, uint32_t)
+            {
+                auto view = output->get_active_view();
+                if (!view || view->role != wf::VIEW_ROLE_TOPLEVEL)
+                    return false;
+
+                handle_slot(view, i);
+
+                return true;
+            };
+
+            output->add_activator(wf::create_option(value.value()), &bindings[i]);
+        }
+
         output->connect_signal("view-snap", &on_snap_signal);
         output->connect_signal("query-snap-geometry", &on_snap_query);
         output->connect_signal("view-tile-request", &on_maximize_signal);
@@ -315,9 +342,40 @@ class wayfire_grid : public wf::plugin_interface_t
             return;
         }
 
-        view->get_data_safe<wf_grid_slot_data>()->slot = slot;
+        wf::geometry_t g = get_slot_dimensions(slot);
+
+        auto area = output->workspace->get_workarea();
+        grabbed_geometry = view->get_wm_geometry();
+
+        if (slot > 9){
+            if (slot == 10)
+                grabbed_geometry.x -= 80;
+            if (slot == 11)
+                grabbed_geometry.x += 80;
+            if (slot == 12)
+                grabbed_geometry.y += 80;
+            if (slot == 13)
+                grabbed_geometry.y -= 80;
+            if (slot == 14)
+                grabbed_geometry.width -= 80;
+            if (slot == 15)
+                grabbed_geometry.width += 80;
+            if (slot == 16)
+                grabbed_geometry.height += 80;
+            if (slot == 17)
+                grabbed_geometry.height -= 80;
+            g = grabbed_geometry;
+        }
+
+        if (slot == 5){
+            grabbed_geometry.x = area.x + (area.width / 2) - (grabbed_geometry.width / 2);
+            grabbed_geometry.y = area.y + (area.height / 2) - (grabbed_geometry.height / 2);
+
+            g = grabbed_geometry;
+        }
+
         ensure_grid_view(view)->adjust_target_geometry(
-            get_slot_dimensions(slot) + delta,
+            g + delta,
             get_tiled_edges_for_slot(slot));
     }
 
