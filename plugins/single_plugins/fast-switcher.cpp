@@ -164,7 +164,7 @@ class wayfire_fast_switcher : public wf::plugin_interface_t
         /* Set all to semi-transparent */
         for (auto view : views)
         {
-            set_view_alpha(view, 0.7);
+            set_view_alpha(view, 1.0);
         }
 
         grab_interface->grab();
@@ -194,8 +194,9 @@ class wayfire_fast_switcher : public wf::plugin_interface_t
     void switch_next()
     {
 #define index current_view_index
-        set_view_alpha(views[index], 0.7);
+        set_view_alpha(views[index], 1.00);
         index = (index + 1) % views.size();
+        views[index]->set_activated(true);
 #undef index
         view_chosen(current_view_index, true);
     }
