@@ -44,7 +44,7 @@ class groups : public wf::plugin_interface_t
         {
             auto ws = output->workspace->get_current_workspace();
             auto views = output->workspace->get_views_on_workspace(ws,
-                    wf::LAYER_WORKSPACE, true);
+                    wf::LAYER_WORKSPACE);
 
             return views.empty() ? nullptr : views[0];
         }
@@ -133,7 +133,7 @@ class groups : public wf::plugin_interface_t
         bool toggle_group(wf::point_t p, std::set<wayfire_view> *group)
         {
             wf::point_t cws = output->workspace->get_current_workspace();
-            std::vector<wayfire_view> current_views = output->workspace->get_views_on_workspace(cws, (wf::LAYER_WORKSPACE), false);
+            std::vector<wayfire_view> current_views = output->workspace->get_views_on_workspace(cws, (wf::LAYER_WORKSPACE));
             std::set<wayfire_view> s(current_views.begin(), current_views.end());
             bool answer = std::includes(s.begin(), s.end(), group->begin(), group->end());
 
